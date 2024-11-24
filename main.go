@@ -3,14 +3,17 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
+	"github.com/twilio/twilio-go"
 	controller "github.com/umitbasakk/humanComputerInteractionBackend/UserStore/Controller"
 	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/database"
+	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/middlewares"
 	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/service"
 )
 
@@ -42,9 +45,18 @@ func main() {
 		fmt.Println(err)
 	}
 
-	datalayer := database.NewUserDatalayerImpl(db)
-	userService := service.NewUserServiceImpl(datalayer)
-	controller.NewUserController(echoContext, userService)
+	appMiddleware := &middlewares.AppMiddleware{
+		Logger: echoContext.Logger,
+		DB:     db,
+	}
 
+	client := twilio.NewRestClientWithParams(twilio.ClientParams{
+		Username: os.Getenv("ACCOUNTSID"),
+		Password: os.Getenv("AUTHTOKEN"),
+	})
+
+	datalayer := database.NewUserDatalayerImpl(db)
+	userService := service.NewUserServiceImpl(datalayer, client)
+	controller.NewUserController(echoContext, userService, appMiddleware)
 	echoContext.Logger.Fatal(echoContext.Start(":1323"))
 }
