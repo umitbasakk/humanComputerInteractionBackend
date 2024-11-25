@@ -2,6 +2,7 @@ package constants
 
 const (
 	InsufficientNameAndSurname = "Your Name or Username must be greater than 5 characters."
+	InsufficientUsername       = "Your Username must be greater than 5 characters."
 	InvalidMail                = "Email address invalid."
 	InsufficientPassword       = "Your password must be greater than 7 characters."
 	AlreadyExistsUsername      = "This username is currently in use."
@@ -11,10 +12,16 @@ const (
 	InvalidPassword            = "Incorrect password."
 	SuccessVerifyCode          = "Successful."
 	AlreadyExistsVerify        = "This account has been verified before."
+	AlreadyUsedPhone           = "this phone number is already in use"
+	UnauthorizedRequest        = "Unauthorized request"
 	MustbeVerified             = "You have to verify the number."
 	SuccessLogin               = "Successful login."
 	ErrorVerified              = "A problem occurred while verifying."
 	GlobalError                = "A problem has occurred. Try Again."
 	SuccessResendCode          = "Verify code sent successfully."
 	SmsFailed                  = "Failed to send sms"
+	NotCorrectPassword         = "your current password is not correct."
+	EqualPassword              = "your current password cannot be the same as your new password."
+	ChangedPassword            = "Your password was successfully changed."
+	UpdateProfile              = "your profile has been successfully updated."
 )

@@ -29,6 +29,11 @@ type PasswordRequest struct {
 	NewPassword     string `json:"newPassword" xml:"newPassword" form:"newPassword" query:"newPassword"`
 }
 
+type UpdateProfileRequest struct {
+	Username string `json:"username" xml:"username" form:"username" query:"username"`
+	Email    string `json:"email" xml:"email" form:"email" query:"email"`
+}
+
 type ResponseUser struct {
 	Token string `json:"token" xml:"token" form:"token" query:"token"`
 }

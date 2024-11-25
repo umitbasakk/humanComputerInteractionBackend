@@ -3,6 +3,8 @@ package database
 import (
 	"context"
 	"database/sql"
+	"errors"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model"
@@ -11,24 +13,24 @@ import (
 
 const createUser = `-- name: CreateUser :exec
 INSERT INTO
-  Users (name,username, password,email,phone,token)
+  users (name,username,email, phone,password,token)
 VALUES
-  ($1, $2,$3,$4,$5,$6)
+  ($1,$2,$3,$4,$5,$6)
 `
 
 const createVerify = `-- name: CreateVerify :exec
 INSERT INTO
-  VerifyUsers (username,verify_code,verify_status)
+  VerifyUsers (user_id,verify_code,verify_status)
 VALUES
   ($1, $2,$3)
 `
-const getVerifyCodeByUsername = `-- name: GetVerifyCodeByUsername :one
+const getVerifyCodeByUserId = `-- name: getVerifyCodeByUserId :one
 SELECT
  *
 FROM
-  VerifyUsers
+  verifyusers
 WHERE
-  username = $1
+  user_id = $1
 LIMIT
   1
 `
@@ -40,6 +42,17 @@ FROM
   users
 WHERE
   username = $1
+LIMIT
+  1
+`
+
+const GetUserByPhone = `-- name: GetUserByUsername :one
+SELECT
+ *
+FROM
+  users
+WHERE
+  phone = $1
 LIMIT
   1
 `
@@ -60,17 +73,38 @@ UPDATE
 SET
   verify_status = $1
 WHERE
-  username = $2
+  user_id = $2
 `
 
 const updateVerifyCode = `-- name: UpdateVerifyCode :exec
 UPDATE
   VerifyUsers
 SET
-  verify_code = $1
+  verify_code = $1,
+  updated_at = NOW()
+WHERE
+  user_id = $2
+`
+
+const updateProfile = `-- name: UpdateProfile :exec
+UPDATE
+  users
+SET
+  username = $1,
+  email = $2
+WHERE
+  username = $3
+`
+
+const updatePassword = `-- name: UpdatePassword :exec
+UPDATE
+  users
+SET
+  password = $1
 WHERE
   username = $2
 `
+
 const updateToken = `-- name: UpdateToken :exec
 UPDATE
   users
@@ -96,7 +130,7 @@ func (dl *UserDatalayerImpl) GetUserByID(ctx context.Context, userID int16) *mod
 }
 
 func (dl *UserDatalayerImpl) Signup(ctx echo.Context, user *model.User) error {
-	_, err := dl.connPs.Query(createUser, user.Name, user.Username, user.Password, user.Email, user.Phone, user.Token)
+	_, err := dl.connPs.Query(createUser, user.Name, user.Username, user.Email, user.Phone, user.Password, user.Token)
 	if err != nil {
 		return err
 	}
@@ -119,6 +153,37 @@ func (dl *UserDatalayerImpl) Login(ctx echo.Context, username string) (*model.Us
 	return user, nil
 }
 
+func (dl *UserDatalayerImpl) GetUserUsername(ctx echo.Context, username string) (*model.User, error) {
+	user := &model.User{}
+	result, err := dl.connPs.Query(GetUserByUsername, username)
+	if err != nil {
+		return nil, err
+	}
+	if result.Next() {
+		errLogin := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Phone, &user.Password, &user.Token, &user.Created_at, &user.Updated_at)
+		if errLogin != nil {
+			return nil, errLogin
+		}
+	}
+
+	return user, nil
+}
+func (dl *UserDatalayerImpl) GetUserEmail(ctx echo.Context, email string) (*model.User, error) {
+	user := &model.User{}
+	result, err := dl.connPs.Query(GetUserByEmail, email)
+	if err != nil {
+		return nil, err
+	}
+	if result.Next() {
+		errLogin := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Phone, &user.Password, &user.Token, &user.Created_at, &user.Updated_at)
+		if errLogin != nil {
+			return nil, errLogin
+		}
+	}
+
+	return user, nil
+}
+
 func (dl *UserDatalayerImpl) SaveTokenByUsername(ctx echo.Context, username string, token string) error {
 	_, err := dl.connPs.Query(updateToken, username, token)
 	if err != nil {
@@ -127,25 +192,32 @@ func (dl *UserDatalayerImpl) SaveTokenByUsername(ctx echo.Context, username stri
 	return nil
 }
 
-func (dl *UserDatalayerImpl) GetUserByUsername(ctx echo.Context, username string) (*model.User, error) {
-	user := &model.User{}
+func (dl *UserDatalayerImpl) IsThereEqualUsername(ctx echo.Context, username string) error {
 	result, err := dl.connPs.Query(GetUserByUsername, username)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if result.Next() {
-		errLogin := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Password, &user.Token, &user.Created_at, &user.Updated_at)
-		if errLogin != nil {
-			return nil, errLogin
-		}
+		return errors.New("Already used email")
 	}
-	return user, nil
+	return nil
+}
+
+func (dl *UserDatalayerImpl) GetUserByPhone(ctx echo.Context, phone string) error {
+	result, err := dl.connPs.Query(GetUserByPhone, phone)
+	if err != nil {
+		return err
+	}
+	if result.Next() {
+		return errors.New("Already used phone")
+	}
+	return nil
 
 }
 
-func (dl *UserDatalayerImpl) GetVerifyCode(ctx echo.Context, username string) (*model.Verify, error) {
+func (dl *UserDatalayerImpl) GetVerifyCode(ctx echo.Context, user_id int) (*model.Verify, error) {
 	vf := &model.Verify{}
-	result, err := dl.connPs.Query(getVerifyCodeByUsername, username)
+	result, err := dl.connPs.Query(getVerifyCodeByUserId, strconv.Itoa(user_id))
 	if err != nil {
 		return nil, err
 	}
@@ -158,39 +230,51 @@ func (dl *UserDatalayerImpl) GetVerifyCode(ctx echo.Context, username string) (*
 	return vf, nil
 }
 
-func (dl *UserDatalayerImpl) CreateVerifyCode(ctx echo.Context, verify *model.Verify) error {
-	_, err := dl.connPs.Query(createVerify, verify.Username, verify.VerifyCode, 0)
+func (dl *UserDatalayerImpl) CreateVerifyCode(ctx echo.Context, verify *model.Verify, user_id int) error {
+	_, err := dl.connPs.Query(createVerify, strconv.Itoa(user_id), verify.VerifyCode, 0)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (dl *UserDatalayerImpl) VerifyCode(ctx echo.Context, username string) error {
-	_, err := dl.connPs.Query(updateVerify, 1, username)
+func (dl *UserDatalayerImpl) VerifyCode(ctx echo.Context, user_id int) error {
+	_, err := dl.connPs.Query(updateVerify, 1, strconv.Itoa(user_id))
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (dl *UserDatalayerImpl) GetUserByEmail(ctx echo.Context, email string) (*model.User, error) {
-	user := &model.User{}
+func (dl *UserDatalayerImpl) IsThereEqualEmail(ctx echo.Context, email string) error {
 	result, err := dl.connPs.Query(GetUserByEmail, email)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if result.Next() {
-		errLogin := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Password, &user.Token, &user.Created_at, &user.Updated_at)
-		if errLogin != nil {
-			return nil, errLogin
-		}
+		return errors.New("Already used email")
 	}
-	return user, nil
+	return nil
 }
 
-func (dl *UserDatalayerImpl) UpdateVerifyCode(ctx echo.Context, username string, vCode string) error {
-	_, err := dl.connPs.Query(updateVerifyCode, vCode, username)
+func (dl *UserDatalayerImpl) UpdateVerifyCode(ctx echo.Context, user_id int, vCode string) error {
+	_, err := dl.connPs.Query(updateVerifyCode, vCode, strconv.Itoa(user_id))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (dl *UserDatalayerImpl) ChangePassword(ctx echo.Context, username string, password string) error {
+	_, err := dl.connPs.Query(updatePassword, password, username)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (dl *UserDatalayerImpl) UpdateProfile(ctx echo.Context, profile *model.UpdateProfileRequest, username string) error {
+	_, err := dl.connPs.Query(updateProfile, profile.Username, profile.Email, username)
 	if err != nil {
 		return err
 	}

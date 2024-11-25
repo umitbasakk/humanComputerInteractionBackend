@@ -8,6 +8,7 @@ const (
 	ErrorLoginSystem
 	ErrorRegisterSystem
 	SendedMessage
+	Authorized
 	NoError
 )
 

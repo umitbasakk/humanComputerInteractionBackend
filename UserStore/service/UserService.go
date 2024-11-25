@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"net/http"
 	"strconv"
@@ -39,20 +40,21 @@ func (service *UserServiceImpl) Login(ctx echo.Context, user *model.User) error 
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.InvalidPassword, ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 
-	token, err := helpers.CreateJWTToken(user.Username)
+	token, err := helpers.CreateJWTToken(result.Username)
 
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorLoginSystem, Data: nil})
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: "a", ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 
-	err = service.userDL.SaveTokenByUsername(ctx, token, user.Username)
+	err = service.userDL.SaveTokenByUsername(ctx, token, result.Username)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorLoginSystem, Data: nil})
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: "b", ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 
-	verify, err := service.userDL.GetVerifyCode(ctx, user.Username)
+	verify, err := service.userDL.GetVerifyCode(ctx, result.Id)
+	log.Println(verify.VerifyCode)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorLoginSystem, Data: nil})
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: "c", ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 	userResponse := &model.UserResponse{
 		Name:       result.Name,
@@ -69,9 +71,9 @@ func (service *UserServiceImpl) Login(ctx echo.Context, user *model.User) error 
 
 	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.SuccessLogin, ErrCode: model.NoError, Data: result})
 }
-func (service *UserServiceImpl) VerifyCode(ctx echo.Context, verify *model.VerifyRequest) error {
+func (service *UserServiceImpl) VerifyCode(ctx echo.Context, verify *model.VerifyRequest, user *model.User) error {
 
-	result, err := service.userDL.GetVerifyCode(ctx, verify.Username)
+	result, err := service.userDL.GetVerifyCode(ctx, user.Id)
 	if result.VerifyStatus != 0 {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.AlreadyExistsVerify, ErrCode: model.ErrorVerifySystem})
 	}
@@ -81,15 +83,15 @@ func (service *UserServiceImpl) VerifyCode(ctx echo.Context, verify *model.Verif
 	if result.VerifyCode != verify.VerifyCode {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.InvalidVerifyCode, ErrCode: model.ErrorVerifySystem})
 	}
-	err = service.userDL.VerifyCode(ctx, verify.Username)
+	err = service.userDL.VerifyCode(ctx, user.Id)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorVerifySystem})
 	}
 	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.SuccessVerifyCode, ErrCode: model.NoError})
 }
 
-func (service *UserServiceImpl) ResendCode(ctx echo.Context, resendCodeRequest *model.ResendCodeRequest) error {
-	result, err := service.userDL.GetVerifyCode(ctx, resendCodeRequest.Username)
+func (service *UserServiceImpl) ResendCode(ctx echo.Context, user *model.User) error {
+	result, err := service.userDL.GetVerifyCode(ctx, user.Id)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorVerifySystem})
 	}
@@ -103,11 +105,12 @@ func (service *UserServiceImpl) ResendCode(ctx echo.Context, resendCodeRequest *
 	}
 
 	vCode := strconv.Itoa(helpers.GetVerifyCode())
-	err = service.userDL.UpdateVerifyCode(ctx, result.Username, vCode)
+	err = service.userDL.UpdateVerifyCode(ctx, user.Id, vCode)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorVerifySystem})
 	}
-	err = service.SendSms(ctx, resendCodeRequest.Phone, vCode)
+
+	err = service.SendSms(ctx, user.Phone, vCode)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.SmsFailed, ErrCode: model.ErrorVerifySystem})
 	}
@@ -131,11 +134,15 @@ func (service *UserServiceImpl) Signup(ctx echo.Context, user *model.User) error
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.InsufficientPassword, ErrCode: model.ErrorRegisterSystem})
 	}
 
-	if us, _ := service.userDL.GetUserByUsername(ctx, user.Username); us != nil && us.Username == user.Username {
+	if errUseUsername := service.userDL.IsThereEqualUsername(ctx, user.Username); errUseUsername != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.AlreadyExistsUsername, ErrCode: model.ErrorRegisterSystem})
 	}
-	if us, _ := service.userDL.GetUserByEmail(ctx, user.Email); us != nil && us.Email == user.Email {
+	if errUseEmail := service.userDL.IsThereEqualEmail(ctx, user.Email); errUseEmail != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.AlreadyExistsEmail, ErrCode: model.ErrorRegisterSystem})
+	}
+
+	if errUsePhone := service.userDL.GetUserByPhone(ctx, user.Phone); errUsePhone != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.AlreadyUsedPhone, ErrCode: model.ErrorRegisterSystem})
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 10)
@@ -147,22 +154,72 @@ func (service *UserServiceImpl) Signup(ctx echo.Context, user *model.User) error
 	user.Password = string(hash)
 	err = service.userDL.Signup(ctx, user)
 	if err != nil {
-		return err
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorVerifySystem, Data: nil})
 	}
 
 	vCode := strconv.Itoa(helpers.GetVerifyCode())
 	verify := &model.Verify{Username: user.Username, VerifyCode: vCode, VerifyStatus: 0}
-
-	err = service.userDL.CreateVerifyCode(ctx, verify)
-	if err != nil {
-		return err
+	userGt, errGetUser := service.userDL.GetUserEmail(ctx, user.Email)
+	if errGetUser != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.SmsFailed, ErrCode: model.ErrorVerifySystem, Data: nil})
 	}
-
+	err = service.userDL.CreateVerifyCode(ctx, verify, userGt.Id)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.SmsFailed, ErrCode: model.ErrorVerifySystem, Data: nil})
+	}
+	log.Println(user.Phone, " ", verify.VerifyCode)
 	err = service.SendSms(ctx, user.Phone, verify.VerifyCode)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.ErrorVerified, ErrCode: model.ErrorVerifySystem, Data: nil})
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorVerifySystem, Data: nil})
 	}
 	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.SuccessfullyRegistered, ErrCode: model.NoError})
+}
+
+func (service *UserServiceImpl) ChangePassword(ctx echo.Context, changePassword *model.PasswordRequest, user *model.User) error {
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(changePassword.CurrentPassword)); err != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.NotCorrectPassword, ErrCode: model.ErrorVerifySystem})
+	}
+	if len(changePassword.NewPassword) < 7 {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.InsufficientPassword, ErrCode: model.ErrorVerifySystem})
+	}
+	if changePassword.CurrentPassword == changePassword.NewPassword {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.EqualPassword, ErrCode: model.ErrorVerifySystem})
+	}
+
+	hashPassword, err := bcrypt.GenerateFromPassword([]byte(changePassword.NewPassword), 10)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorVerifySystem})
+	}
+	errProcess := service.userDL.ChangePassword(ctx, user.Username, string(hashPassword))
+	if errProcess != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorVerifySystem})
+	}
+	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.ChangedPassword, ErrCode: model.ErrorVerifySystem})
+}
+
+func (service *UserServiceImpl) UpdateProfile(ctx echo.Context, profile *model.UpdateProfileRequest, user *model.User) error {
+
+	if err := helpers.ValidEmail(profile.Email); err != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.InvalidMail, ErrCode: model.ErrorVerifySystem})
+	}
+
+	if len(profile.Username) < 5 {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.InsufficientUsername, ErrCode: model.ErrorVerifySystem})
+	}
+
+	if err := service.userDL.IsThereEqualUsername(ctx, profile.Username); err != nil && user.Username != profile.Username {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.AlreadyExistsUsername, ErrCode: model.ErrorVerifySystem})
+	}
+
+	if err := service.userDL.IsThereEqualEmail(ctx, profile.Email); err != nil && user.Email != profile.Email {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.AlreadyExistsEmail, ErrCode: model.ErrorVerifySystem})
+	}
+	err := service.userDL.UpdateProfile(ctx, profile, user.Username)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorVerifySystem})
+	}
+	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.UpdateProfile, ErrCode: model.NoError})
 }
 
 func (service *UserServiceImpl) SendSms(ctx echo.Context, phone string, code string) error {
