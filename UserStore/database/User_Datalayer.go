@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
-	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model"
+	model "github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model/Auth"
 	"github.com/umitbasakk/humanComputerInteractionBackend/interfaces"
 )
 
@@ -129,11 +129,12 @@ func (dl *UserDatalayerImpl) GetUserByID(ctx context.Context, userID int16) *mod
 	return nil
 }
 
-func (dl *UserDatalayerImpl) Signup(ctx echo.Context, user *model.User) error {
-	_, err := dl.connPs.Query(createUser, user.Name, user.Username, user.Email, user.Phone, user.Password, user.Token)
+func (dl *UserDatalayerImpl) Signup(tx *sql.Tx, ctx echo.Context, user *model.User) error {
+	rows, err := tx.Query(createUser, user.Name, user.Username, user.Email, user.Phone, user.Password, user.Token)
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 	return nil
 }
 
@@ -168,9 +169,9 @@ func (dl *UserDatalayerImpl) GetUserUsername(ctx echo.Context, username string) 
 
 	return user, nil
 }
-func (dl *UserDatalayerImpl) GetUserEmail(ctx echo.Context, email string) (*model.User, error) {
+func (dl *UserDatalayerImpl) GetUserEmail(tx *sql.Tx, ctx echo.Context, email string) (*model.User, error) {
 	user := &model.User{}
-	result, err := dl.connPs.Query(GetUserByEmail, email)
+	result, err := tx.Query(GetUserByEmail, email)
 	if err != nil {
 		return nil, err
 	}
@@ -179,8 +180,9 @@ func (dl *UserDatalayerImpl) GetUserEmail(ctx echo.Context, email string) (*mode
 		if errLogin != nil {
 			return nil, errLogin
 		}
-	}
 
+	}
+	defer result.Close()
 	return user, nil
 }
 
@@ -230,8 +232,8 @@ func (dl *UserDatalayerImpl) GetVerifyCode(ctx echo.Context, user_id int) (*mode
 	return vf, nil
 }
 
-func (dl *UserDatalayerImpl) CreateVerifyCode(ctx echo.Context, verify *model.Verify, user_id int) error {
-	_, err := dl.connPs.Query(createVerify, strconv.Itoa(user_id), verify.VerifyCode, 0)
+func (dl *UserDatalayerImpl) CreateVerifyCode(tx *sql.Tx, ctx echo.Context, verify *model.Verify, user_id int) error {
+	_, err := tx.Query(createVerify, strconv.Itoa(user_id), verify.VerifyCode, 0)
 	if err != nil {
 		return err
 	}
@@ -276,6 +278,21 @@ func (dl *UserDatalayerImpl) ChangePassword(ctx echo.Context, username string, p
 func (dl *UserDatalayerImpl) UpdateProfile(ctx echo.Context, profile *model.UpdateProfileRequest, username string) error {
 	_, err := dl.connPs.Query(updateProfile, profile.Username, profile.Email, username)
 	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (dl *UserDatalayerImpl) GetTransaction(ctx context.Context) (*sql.Tx, error) {
+	tx, err := dl.connPs.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	return tx, nil
+}
+
+func (dl *UserDatalayerImpl) CommitTransaction(tx *sql.Tx) error {
+	if err := tx.Commit(); err != nil {
 		return err
 	}
 	return nil

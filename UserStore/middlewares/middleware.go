@@ -7,7 +7,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/database"
-	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model"
+	model "github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model/Auth"
 	"github.com/umitbasakk/humanComputerInteractionBackend/constants"
 	"github.com/umitbasakk/humanComputerInteractionBackend/helpers"
 )

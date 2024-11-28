@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/middlewares"
-	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model"
+	model "github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model/Auth"
 	"github.com/umitbasakk/humanComputerInteractionBackend/constants"
 	"github.com/umitbasakk/humanComputerInteractionBackend/interfaces"
 )
@@ -40,7 +40,7 @@ func (userController *UserController) Signup(ec echo.Context) error {
 		return err
 	}
 
-	return userController.userService.Signup(ec, userM)
+	return userController.userService.Signup(ec.Request().Context(), ec, userM)
 }
 
 func (userController *UserController) Login(ec echo.Context) error {
