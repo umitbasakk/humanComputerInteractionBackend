@@ -2,6 +2,7 @@ package constants
 
 const (
 	InsufficientNameAndSurname = "Your Name or Username must be greater than 5 characters."
+	InsufficientName           = "Your Name must be greater than 5 characters."
 	InsufficientUsername       = "Your Username must be greater than 5 characters."
 	InvalidMail                = "Email address invalid."
 	InsufficientPassword       = "Your password must be greater than 7 characters."
@@ -23,5 +24,7 @@ const (
 	NotCorrectPassword         = "your current password is not correct."
 	EqualPassword              = "your current password cannot be the same as your new password."
 	ChangedPassword            = "Your password was successfully changed."
-	UpdateProfile              = "your profile has been successfully updated."
+	UpdateProfile              = "Your profile has been successfully updated. You are redirected to the login page..."
+	ErrorAI                    = "AI has a problem"
+	FailedTransaction          = "Failed Transaction"
 )

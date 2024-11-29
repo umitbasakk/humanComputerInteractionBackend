@@ -48,7 +48,7 @@ func (userController *UserController) Login(ec echo.Context) error {
 	if err := ec.Bind(userM); err != nil {
 		return err
 	}
-	return userController.userService.Login(ec, userM)
+	return userController.userService.Login(ec.Request().Context(), ec, userM)
 }
 
 func (userController *UserController) Verify(ec echo.Context) error {
@@ -60,7 +60,7 @@ func (userController *UserController) Verify(ec echo.Context) error {
 	if err := ec.Bind(verifyRequest); err != nil {
 		return err
 	}
-	return userController.userService.VerifyCode(ec, verifyRequest, user)
+	return userController.userService.VerifyCode(ec.Request().Context(), ec, verifyRequest, user)
 }
 
 func (userController *UserController) ResendCode(ec echo.Context) error {
@@ -68,7 +68,7 @@ func (userController *UserController) ResendCode(ec echo.Context) error {
 	if !ok {
 		return ec.JSON(http.StatusUnauthorized, &model.MessageHandler{Message: constants.UnauthorizedRequest, ErrCode: model.Authorized})
 	}
-	return userController.userService.ResendCode(ec, user)
+	return userController.userService.ResendCode(ec.Request().Context(), ec, user)
 }
 
 func (userController *UserController) ChangePassword(c echo.Context) error {
@@ -92,5 +92,5 @@ func (userController *UserController) UpdateProfile(c echo.Context) error {
 	if err := c.Bind(updateProfileRq); err != nil {
 		return c.JSON(http.StatusUnauthorized, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorVerifySystem})
 	}
-	return userController.userService.UpdateProfile(c, updateProfileRq, user)
+	return userController.userService.UpdateProfile(c.Request().Context(), c, updateProfileRq, user)
 }

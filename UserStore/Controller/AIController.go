@@ -25,7 +25,7 @@ func NewAIController(echo *echo.Echo, service interfaces.AIService, middleware *
 	}
 
 	echo.POST("/ai/requestAI", Controller.RequestAI, Controller.appMiddleware.AuthenticationMiddleware)
-
+	echo.GET("/ai/getAllRequests", Controller.GetAllRequests, Controller.appMiddleware.AuthenticationMiddleware)
 }
 
 func (Controller *AIController) RequestAI(ctx echo.Context) error {
@@ -37,5 +37,14 @@ func (Controller *AIController) RequestAI(ctx echo.Context) error {
 	if err := ctx.Bind(request); err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: "No Bind", ErrCode: model.ErrorVerifySystem})
 	}
-	return Controller.aiService.GetResult(ctx, request, user)
+	return Controller.aiService.GetResult(ctx.Request().Context(), ctx, request, user)
+}
+
+func (Controller *AIController) GetAllRequests(ctx echo.Context) error {
+	user, ok := ctx.Get("user").(*UserModel.User)
+	if !ok {
+		return ctx.JSON(http.StatusUnauthorized, &model.MessageHandler{Message: constants.UnauthorizedRequest, ErrCode: model.Authorized})
+	}
+
+	return Controller.aiService.GetAllRequests(ctx.Request().Context(), ctx, user)
 }

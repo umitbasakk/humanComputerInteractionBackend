@@ -90,10 +90,11 @@ const updateProfile = `-- name: UpdateProfile :exec
 UPDATE
   users
 SET
-  username = $1,
-  email = $2
+  name = $1,
+  username = $2,
+  email = $3
 WHERE
-  username = $3
+  username = $4
 `
 
 const updatePassword = `-- name: UpdatePassword :exec
@@ -150,13 +151,13 @@ func (dl *UserDatalayerImpl) Login(ctx echo.Context, username string) (*model.Us
 			return nil, errLogin
 		}
 	}
-
+	defer result.Close()
 	return user, nil
 }
 
-func (dl *UserDatalayerImpl) GetUserUsername(ctx echo.Context, username string) (*model.User, error) {
+func (dl *UserDatalayerImpl) GetUserUsername(tx *sql.Tx, ctx echo.Context, username string) (*model.User, error) {
 	user := &model.User{}
-	result, err := dl.connPs.Query(GetUserByUsername, username)
+	result, err := tx.Query(GetUserByUsername, username)
 	if err != nil {
 		return nil, err
 	}
@@ -186,40 +187,43 @@ func (dl *UserDatalayerImpl) GetUserEmail(tx *sql.Tx, ctx echo.Context, email st
 	return user, nil
 }
 
-func (dl *UserDatalayerImpl) SaveTokenByUsername(ctx echo.Context, username string, token string) error {
-	_, err := dl.connPs.Query(updateToken, username, token)
+func (dl *UserDatalayerImpl) SaveTokenByUsername(tx *sql.Tx, ctx echo.Context, username string, token string) error {
+	rows, err := tx.Query(updateToken, username, token)
 	if err != nil {
 		return err
 	}
+	rows.Close()
 	return nil
 }
 
-func (dl *UserDatalayerImpl) IsThereEqualUsername(ctx echo.Context, username string) error {
-	result, err := dl.connPs.Query(GetUserByUsername, username)
+func (dl *UserDatalayerImpl) IsThereEqualUsername(tx *sql.Tx, ctx echo.Context, username string) error {
+	result, err := tx.Query(GetUserByUsername, username)
 	if err != nil {
 		return err
 	}
 	if result.Next() {
 		return errors.New("Already used email")
 	}
+	defer result.Close()
 	return nil
 }
 
-func (dl *UserDatalayerImpl) GetUserByPhone(ctx echo.Context, phone string) error {
-	result, err := dl.connPs.Query(GetUserByPhone, phone)
+func (dl *UserDatalayerImpl) GetUserByPhone(tx *sql.Tx, ctx echo.Context, phone string) error {
+	result, err := tx.Query(GetUserByPhone, phone)
 	if err != nil {
 		return err
 	}
 	if result.Next() {
 		return errors.New("Already used phone")
 	}
+	result.Close()
 	return nil
 
 }
 
-func (dl *UserDatalayerImpl) GetVerifyCode(ctx echo.Context, user_id int) (*model.Verify, error) {
+func (dl *UserDatalayerImpl) GetVerifyCode(tx *sql.Tx, ctx echo.Context, user_id int) (*model.Verify, error) {
 	vf := &model.Verify{}
-	result, err := dl.connPs.Query(getVerifyCodeByUserId, strconv.Itoa(user_id))
+	result, err := tx.Query(getVerifyCodeByUserId, strconv.Itoa(user_id))
 	if err != nil {
 		return nil, err
 	}
@@ -229,6 +233,7 @@ func (dl *UserDatalayerImpl) GetVerifyCode(ctx echo.Context, user_id int) (*mode
 			return nil, errLogin
 		}
 	}
+	defer result.Close()
 	return vf, nil
 }
 
@@ -240,30 +245,33 @@ func (dl *UserDatalayerImpl) CreateVerifyCode(tx *sql.Tx, ctx echo.Context, veri
 	return nil
 }
 
-func (dl *UserDatalayerImpl) VerifyCode(ctx echo.Context, user_id int) error {
-	_, err := dl.connPs.Query(updateVerify, 1, strconv.Itoa(user_id))
+func (dl *UserDatalayerImpl) VerifyCode(tx *sql.Tx, ctx echo.Context, user_id int) error {
+	rows, err := tx.Query(updateVerify, 1, strconv.Itoa(user_id))
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 	return nil
 }
 
-func (dl *UserDatalayerImpl) IsThereEqualEmail(ctx echo.Context, email string) error {
-	result, err := dl.connPs.Query(GetUserByEmail, email)
+func (dl *UserDatalayerImpl) IsThereEqualEmail(tx *sql.Tx, ctx echo.Context, email string) error {
+	result, err := tx.Query(GetUserByEmail, email)
 	if err != nil {
 		return err
 	}
 	if result.Next() {
 		return errors.New("Already used email")
 	}
+	result.Close()
 	return nil
 }
 
-func (dl *UserDatalayerImpl) UpdateVerifyCode(ctx echo.Context, user_id int, vCode string) error {
-	_, err := dl.connPs.Query(updateVerifyCode, vCode, strconv.Itoa(user_id))
+func (dl *UserDatalayerImpl) UpdateVerifyCode(tx *sql.Tx, ctx echo.Context, user_id int, vCode string) error {
+	rows, err := tx.Query(updateVerifyCode, vCode, strconv.Itoa(user_id))
 	if err != nil {
 		return err
 	}
+	rows.Close()
 	return nil
 }
 
@@ -275,11 +283,12 @@ func (dl *UserDatalayerImpl) ChangePassword(ctx echo.Context, username string, p
 	return nil
 }
 
-func (dl *UserDatalayerImpl) UpdateProfile(ctx echo.Context, profile *model.UpdateProfileRequest, username string) error {
-	_, err := dl.connPs.Query(updateProfile, profile.Username, profile.Email, username)
+func (dl *UserDatalayerImpl) UpdateProfile(tx *sql.Tx, ctx echo.Context, profile *model.UpdateProfileRequest, username string) error {
+	rows, err := tx.Query(updateProfile, profile.Name, profile.Username, profile.Email, username)
 	if err != nil {
 		return err
 	}
+	defer rows.Close()
 	return nil
 }
 

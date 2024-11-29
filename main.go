@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -40,7 +39,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
+	m.Down()
 	if err := m.Up(); err != nil {
 		fmt.Println(err)
 	}
@@ -51,12 +50,17 @@ func main() {
 	}
 
 	client := twilio.NewRestClientWithParams(twilio.ClientParams{
-		Username: os.Getenv("ACCOUNTSID"),
-		Password: os.Getenv("AUTHTOKEN"),
+		Username: "AC7ed880bbbac683e5c3ff3b553631be20", //
+		Password: "c049546a99d30d5e0db61ba98f7dff9a",   //
 	})
 
-	datalayer := database.NewUserDatalayerImpl(db)
-	userService := service.NewUserServiceImpl(datalayer, client)
+	userDataLayer := database.NewUserDatalayerImpl(db)
+	userService := service.NewUserServiceImpl(userDataLayer, client)
 	controller.NewUserController(echoContext, userService, appMiddleware)
+
+	aiDataLayer := database.NewAIDataLayerImpl(db)
+	aiService := service.NewAIServiceImpl(aiDataLayer)
+	controller.NewAIController(echoContext, aiService, appMiddleware)
+
 	echoContext.Logger.Fatal(echoContext.Start(":1323"))
 }
