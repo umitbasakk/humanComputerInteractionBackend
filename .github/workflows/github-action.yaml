@@ -13,7 +13,7 @@ jobs:
       
       - name: Deploy
         run: |
-          docker compose -f docker-compose.yaml -p human --rmi all --volumes
+          docker compose -f docker-compose.yaml -p human down --rmi all --volumes
           docker compose -f docker-compose.yaml -p human up -d
 
     
