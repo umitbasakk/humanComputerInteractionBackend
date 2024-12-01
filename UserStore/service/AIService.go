@@ -1,8 +1,13 @@
 package service
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -25,29 +30,40 @@ func NewAIServiceImpl(dataLayer interfaces.AIDataLayer) interfaces.AIService {
 	}
 }
 
-func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Context, request *AIModel.AIRequest, user *AuthModel.User) error {
+func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Context, request *AIModel.AIRequest, user *model.User) error {
+
 	aiData := &AiModel.AIData{}
 
-	aiData.UserId = strconv.Itoa(user.Id)
+	aiData.UserId = aiData.UserId
 	aiData.StartedDate = request.StartedDate
 	aiData.EndDate = request.EndDate
 	aiData.HashTag = request.HashTag
 	aiData.Category, _ = strconv.Atoi(request.Category)
 	aiData.QuantityLimit, _ = strconv.Atoi(request.QuantityLimit)
 	aiData.RequestStatus = 1
-	/*
-			url := "http://127.0.0.1:5000/endpoint"
-			jsonVal, err := json.Marshal(request)
-			if err != nil {
-				fmt.Println("Hata", err)
-			}
-			resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonVal))
-			if err != nil {
-				fmt.Println("Hata", err)
-			}
 
-		defer resp.Body.Close()
-	*/
+	url := fmt.Sprintf("http://%s:5000/endpoint", os.Getenv("PYTHON_URL"))
+
+	jsonVal, err := json.Marshal(request)
+	if err != nil {
+		fmt.Println("Hata", err)
+	}
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonVal))
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
+	}
+	defer resp.Body.Close()
+
+	s, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
+	}
+	response := &AIModel.AIResponse{}
+	err = json.Unmarshal(s, response)
+	if err != nil {
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
+	}
+
 	tx, err := AIService.aiDL.GetTransaction(context)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.ErrorAI, ErrCode: model.ErrorLoginSystem, Data: nil})
@@ -61,8 +77,11 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.ErrorAI, ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
+	if aiData.RequestStatus == 0 {
+		return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorLoginSystem})
+	}
 
-	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: "Devam ke", ErrCode: model.ErrorLoginSystem})
+	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.Successful, ErrCode: model.ErrorLoginSystem})
 }
 
 func (AIService *AIServiceImpl) GetAllRequests(context context.Context, ctx echo.Context, user *AuthModel.User) error {

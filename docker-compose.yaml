@@ -1,6 +1,27 @@
-version: '2.8'
-
 services:
+    product:
+        build:
+          context: ./
+          dockerfile: dockerfile-product.yaml
+        restart: always
+        ports:
+          - "1323:1323"
+        environment:
+          DB_USER: wronglyaroundromance
+          DB_PASSWORD: xaumGvWmWNJtMhAOtmfR9ZtqdBj
+          DB_HOST: postgre:5432
+          DB_NAME: human_db
+          TWILIO_USERNAME: AC7ed880bbbac683e5c3ff3b553631be20
+          TWILIO_PASSWORD: 683680b0b7e4df5f14b9a7b8695560ea
+          PYTHON_HOST: py
+        depends_on:
+          - py
+          - postgre
+    py:
+      build:
+        context: ./
+        dockerfile: dockerfile-python.yaml
+      restart: always
     postgre:
         image: postgres
         ports:
@@ -8,8 +29,8 @@ services:
         volumes:
           - db_data:/var/lib/postgresql/data
         environment:
-            POSTGRES_USER: user
-            POSTGRES_PASSWORD: password
-            POSTGRES_DB:  db
+            POSTGRES_USER: wronglyaroundromance
+            POSTGRES_PASSWORD: xaumGvWmWNJtMhAOtmfR9ZtqdBj
+            POSTGRES_DB:  human_db
 volumes:
   db_data:

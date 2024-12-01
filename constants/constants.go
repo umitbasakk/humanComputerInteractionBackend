@@ -27,4 +27,5 @@ const (
 	UpdateProfile              = "Your profile has been successfully updated. You are redirected to the login page..."
 	ErrorAI                    = "AI has a problem"
 	FailedTransaction          = "Failed Transaction"
+	Successful                 = "Successful"
 )

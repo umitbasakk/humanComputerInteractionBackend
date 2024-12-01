@@ -21,3 +21,7 @@ type AIData struct {
 	Created_at    time.Time `json:"created_at" xml:"created_at" form:"created_at" query:"created_at"`
 	Updated_at    time.Time `json:"updated_at" xml:"updated_at" form:"updated_at" query:"updated_at"`
 }
+
+type AIResponse struct {
+	Message string `json:"message"`
+}

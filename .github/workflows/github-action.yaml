@@ -1,0 +1,19 @@
+name: Github Workflow
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  Deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Deploy
+        run: |
+          docker compose -f docker-compose.yaml -p human --rmi all --volumes
+          docker compose -f docker-compose.yaml -p human up -d
+
+    
