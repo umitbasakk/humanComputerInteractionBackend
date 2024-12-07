@@ -42,7 +42,7 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	aiData.QuantityLimit, _ = strconv.Atoi(request.QuantityLimit)
 	aiData.RequestStatus = 1
 
-	url := fmt.Sprintf("http://%s:5000/endpoint", os.Getenv("PYTHON_URL"))
+	url := fmt.Sprintf("http://%s:5000/getValue", os.Getenv("PYTHON_URL"))
 
 	jsonVal, err := json.Marshal(request)
 	if err != nil {
@@ -63,7 +63,6 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
-
 	tx, err := AIService.aiDL.GetTransaction(context)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.ErrorAI, ErrCode: model.ErrorLoginSystem, Data: nil})
@@ -81,7 +80,7 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 		return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorLoginSystem})
 	}
 
-	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.Successful, ErrCode: model.ErrorLoginSystem})
+	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.Successful, ErrCode: model.ErrorLoginSystem, Data: response})
 }
 
 func (AIService *AIServiceImpl) GetAllRequests(context context.Context, ctx echo.Context, user *AuthModel.User) error {

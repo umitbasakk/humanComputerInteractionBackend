@@ -23,5 +23,11 @@ type AIData struct {
 }
 
 type AIResponse struct {
-	Message string `json:"message"`
+	Tweets []Tweet `json:"tweets"`
+}
+
+type Tweet struct {
+	Classify    string `json:"classify"`
+	PublishDate string `json:"publishDate"`
+	tweet       string `json:"tweet"`
 }
