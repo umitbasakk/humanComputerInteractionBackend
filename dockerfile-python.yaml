@@ -1,11 +1,12 @@
-FROM python:3.9 AS builder
+FROM python:3.8.10
 
-COPY requirements.txt .
+ENV PYTHONBUFFERED 1
+COPY ./requirements.txt /requirements.txt
 
-RUN pip install -r requirements.txt
+RUN pip3 install --user -U nltk
+RUN pip3 install -U pip setuptools
+RUN pip3 install -U -r /requirements.txt
 
-COPY app.py .
-
-EXPOSE 5000
-
-CMD ["python","app.py"]
+RUN mkdir /scraper
+COPY ./scraper /scraper
+WORKDIR /scraper

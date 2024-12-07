@@ -1,0 +1,2 @@
+/scraper filter=lfs diff=lfs merge=lfs -text
+200~C:/Users/Ceng/Documents/GitHub/humanComputerInteractionBackend/scraper filter=lfs diff=lfs merge=lfs -text
