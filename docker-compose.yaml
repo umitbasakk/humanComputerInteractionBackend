@@ -17,11 +17,26 @@ services:
         depends_on:
           - py
           - postgre
-    py:
-      build:
-        context: ./
-        dockerfile: dockerfile-python.yaml
-      restart: always
+
+    selenium:
+        image: selenium/standalone-chrome
+        ports:
+        - 4444:4444
+        restart: always
+
+    app:
+        build:
+          context: .
+          dockerfile: dockerfile-python.yaml
+        volumes:
+        - ./scraper:/scraper
+        command: sh -c "python3 oddsportal_scraper.py"
+        ports:
+          - "5000:5000"
+        restart: always
+        depends_on:
+        - selenium 
+
     postgre:
         image: postgres
         ports:
