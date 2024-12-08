@@ -24,6 +24,9 @@ import random
 from models import RequestTweet,Tweet
 
 app = Flask(__name__)
+print(os.path.exists("/scraper/Models/final_model_pytorch"))
+print(os.path.exists("/scraper/Models/Models/saved_model"))
+
 # Gerekli dil işleme kütüphanelerini indir
 nltk.download('punkt')
 nltk.download('stopwords')
