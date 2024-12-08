@@ -242,21 +242,27 @@ def ConvertData(ClassifySavePath):
     return result_list
 
 def SortingByDate(ClassifySavePath):
-    data = pd.read_csv(ClassifySavePath, encoding='utf-8-sig')  
+    data = pd.read_csv(ClassifySavePath, encoding='utf-8-sig')
+
+    # Listeyi oluştur
     tweet_list = []
     for _, row in data.iterrows():
         print(f"Date: {row['Date']}, Cleaned_Tweet: {row['Cleaned_Tweet']}, Label: {row['label']}")
         tweet_list.append(Tweet(row['Date'], row['Cleaned_Tweet'], row['label']))
-        
-    tweet_list.sort(key=lambda x:pd.to_datetime(x.publishDate))
 
+    # Tarihe göre sıralama
+    tweet_list.sort(key=lambda x: pd.to_datetime(x.date))
+
+    # Sıralanmış listeyi yazdır
     for tweet in tweet_list:
         print(f"Sıralanmış Date: {tweet.date}, Cleaned_Tweet: {tweet.cleaned_tweet}, Label: {tweet.label}")
 
+    # Listeyi DataFrame'e dönüştür ve CSV'ye kaydet
+    tweet_df = pd.DataFrame([tweet.to_dict() for tweet in tweet_list])
+    tweet_df.to_csv(ClassifySavePath, index=False, encoding='utf-8-sig')
 
-    tweet_list.to_csv(classify_csv,index=False,encoding='utf-8-sig')
-
-    return result_list
+    print(f"Sıralanmış veriler {ClassifySavePath} dosyasına kaydedildi.")
+    return tweet_list
 
 
 
