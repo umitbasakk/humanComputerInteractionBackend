@@ -245,9 +245,13 @@ def ConvertData(ClassifySavePath):
 @app.route('/getValue',methods=['POST'])
 def GetResults():
     data = request.get_json()
-    start = data.get('startDate')
+    start = data.get('startedDate')
     end = data.get('endDate')
     hashTag = data.get('hashTag')
+    category = data.get('category')
+    limit = data.get('quantityLimit')
+    print(category,limit)
+
     if not all([start, end, hashTag]):
         return jsonify({"error": "start, end ve tag parametreleri gerekli!"}), 400
     

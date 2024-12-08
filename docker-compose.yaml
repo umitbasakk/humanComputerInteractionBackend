@@ -13,7 +13,7 @@ services:
           DB_NAME: human_db
           TWILIO_USERNAME: AC7ed880bbbac683e5c3ff3b553631be20
           TWILIO_PASSWORD: 683680b0b7e4df5f14b9a7b8695560ea
-          PYTHON_HOST: py
+          PYTHON_HOST: app
         depends_on:
           - app
           - postgre
