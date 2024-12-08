@@ -22,15 +22,6 @@ from flask import Flask,jsonify,request
 import torch
 import random
 from models import RequestTweet,Tweet
-
-app = Flask(__name__)
-print(os.path.exists("/scraper/Models/final_model_pytorch"))
-files = os.listdir("/scraper/Models/final_model_pytorch")
-print("Files in directory:", files)
-print(os.path.exists("/scraper/Models/saved_model"))
-files2 = os.listdir("/scraper/Models/saved_model")
-print("Files in directory:", files2)
-
 import os
 
 # Gerekli dil işleme kütüphanelerini indir
