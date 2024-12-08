@@ -118,7 +118,7 @@ def ProcessRequest(request_Tweet,tweetSavePath,cleanedSavePath,ClassifySavePath,
 
     input_xpath = '//div[@class="css-175oi2r r-18u37iz r-16y2uox r-1wbh5a2 r-1wzrnnt r-1udh08x r-xd6kpl r-is05cd r-ttdzmv"]//input[@name="text"]'
     input_element = driver.find_element(By.XPATH, input_xpath)
-    input_element.send_keys("kelvin_emeseh")  
+    input_element.send_keys("loncito123")  
 
     time.sleep(3)
 
@@ -131,7 +131,7 @@ def ProcessRequest(request_Tweet,tweetSavePath,cleanedSavePath,ClassifySavePath,
    
     password_input_xpath = '//input[@name="password"]'
     password_input = driver.find_element(By.XPATH, password_input_xpath)
-    password_input.send_keys("8t5DY6mWkk")  
+    password_input.send_keys("1u3JWdfhNS")  
 
     time.sleep(3)
 
