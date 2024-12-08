@@ -3,6 +3,7 @@ services:
         build:
           context: ./
           dockerfile: dockerfile-product.yaml
+            CACHE_BUSTER: ${CACHE_BUSTER:-1}
         restart: always
         ports:
           - "1323:1323"
@@ -28,6 +29,8 @@ services:
         build:
           context: .
           dockerfile: dockerfile-python.yaml
+          args:
+            CACHE_BUSTER: ${CACHE_BUSTER:-1}
         volumes:
         - ./scraper:/scraper
         command: sh -c "python3 oddsportal_scraper.py"
@@ -49,3 +52,5 @@ services:
             POSTGRES_DB:  human_db
 volumes:
   db_data:
+
+  
