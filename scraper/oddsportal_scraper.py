@@ -31,6 +31,33 @@ print(os.path.exists("/scraper/Models/saved_model"))
 files2 = os.listdir("/scraper/Models/saved_model")
 print("Files in directory:", files2)
 
+import os
+
+# Kontrol edilecek klasörlerin yolları
+final_model_path = "/scraper/Models/final_model_pytorch"
+saved_model_path = "/scraper/Models/saved_model"
+
+# Dosyaları ve boyutlarını listeleme fonksiyonu
+def list_files_with_size(final_model_path):
+    if not os.path.exists(final_model_path):
+        print(f"{final_model_path} klasörü bulunamadı!")
+        return
+
+    print(f"{final_model_path} içindeki dosyalar:")
+    for file_name in os.listdir(final_model_path):
+        file_path = os.path.join(final_model_path, file_name)
+        if os.path.isfile(file_path):
+            size_in_mb = os.path.getsize(file_path) / (1024 * 1024)  # MB cinsinden boyut
+            print(f"  {file_name} - {size_in_mb:.2f} MB")
+        else:
+            print(f"  {file_name} - Klasör")
+
+# Her iki klasörü kontrol et
+list_files_with_size(final_model_path)
+list_files_with_size(saved_model_path)
+
+
+
 # Gerekli dil işleme kütüphanelerini indir
 nltk.download('punkt')
 nltk.download('stopwords')
