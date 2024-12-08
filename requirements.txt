@@ -1,1 +1,14 @@
-flask==3.1.0
+selenium
+beautifulsoup4
+antlr4-python3-runtime==4.9.2
+numpy==1.21.0
+pandas
+Locales
+lxml
+scikit-learn
+nltk==3.8.1
+transformers
+zemberek-python
+tqdm
+torch==1.12.1
+flask
