@@ -233,6 +233,10 @@ def ConvertData(ClassifySavePath):
     return result_list
 
 
+@app.route('/getValue',methods=['GET'])
+def GetResults():
+    return jsonify({"hello world":"yest"})
+
 @app.route('/getValue',methods=['POST'])
 def GetResults():
     data = request.get_json()
