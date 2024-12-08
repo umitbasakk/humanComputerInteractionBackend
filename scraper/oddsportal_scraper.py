@@ -251,7 +251,7 @@ def SortingByDate(ClassifySavePath):
         tweet_list.append(Tweet(row['Date'], row['Cleaned_Tweet'], row['label']))
 
     # Tarihe göre sıralama
-    tweet_list.sort(key=lambda x: pd.to_datetime(x.date))
+    tweet_list.sort(key=lambda x: pd.to_datetime(x.publishDate))
 
     # Sıralanmış listeyi yazdır
     for tweet in tweet_list:
