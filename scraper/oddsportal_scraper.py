@@ -241,6 +241,25 @@ def ConvertData(ClassifySavePath):
 
     return result_list
 
+def SortingByDate(ClassifySavePath):
+    data = pd.read_csv(ClassifySavePath, encoding='utf-8-sig')  
+    tweet_list = []
+    for _, row in data.iterrows():
+        print(f"Date: {row['Date']}, Cleaned_Tweet: {row['Cleaned_Tweet']}, Label: {row['label']}")
+        tweet_list.append(Tweet(row['Date'], row['Cleaned_Tweet'], row['label']))
+        
+    tweet_list.sort(key=lambda x:pd.to_datetime(x.publishDate))
+
+    for tweet in tweet_list:
+        print(f"Sıralanmış Date: {tweet.date}, Cleaned_Tweet: {tweet.cleaned_tweet}, Label: {tweet.label}")
+
+
+    tweet_list.to_csv(classify_csv,index=False,encoding='utf-8-sig')
+
+    return result_list
+
+
+
 
 @app.route('/getValue',methods=['POST'])
 def GetResults():
@@ -266,7 +285,8 @@ def GetResults():
     print("Started Data",tweet_request.startDate,"End Date",tweet_request.endDate+"Tag:",tweet_request.tag)
     ProcessRequest(tweet_request ,tweetSavePath,cleanedSavePath,ClassifySavePath,driver)
     classify_csv(cleanedSavePath,ClassifySavePath,driver)
-    result = ConvertData(ClassifySavePath)
+    convertedData = ConvertData(ClassifySavePath)
+    result = SortingByDate(ClassifySavePath)
     return jsonify({"tweets": result})
 
 
