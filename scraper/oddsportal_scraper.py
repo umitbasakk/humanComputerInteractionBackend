@@ -257,7 +257,7 @@ def SortingByDate(ClassifySavePath):
 
     # Sıralanmış listeyi yazdır
     for tweet in tweet_list:
-        print(f"Sıralanmış Date: {tweet.date.strftime('%d/%m/%Y')}, Cleaned_Tweet: {tweet.tweet}, Label: {tweet.classify}")
+        print(f"Sıralanmış Date: {tweet.publishDate.strftime('%d/%m/%Y')}, Cleaned_Tweet: {tweet.tweet}, Label: {tweet.classify}")
 
     # Listeyi DataFrame'e dönüştür ve CSV'ye kaydet
     tweet_df = pd.DataFrame([tweet.to_dict() for tweet in tweet_list])
