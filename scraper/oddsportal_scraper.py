@@ -221,7 +221,7 @@ def classify_csv(cleanedSavePath,ClassifySavePath,driver):
 
     # Sonuçları CSV dosyasına kaydet
     data.to_csv(ClassifySavePath, index=False, encoding='utf-8-sig')
-    print(f"Kategorize edilmiş veriler başarıyla kaydedildi: {ClassifySavePath}")
+    print(f"Kategorize edilmiş veriler başarıysla kaydedildi: {ClassifySavePath}")
 
     time.sleep(10)
     driver.quit()
