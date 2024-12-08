@@ -15,7 +15,7 @@ services:
           TWILIO_PASSWORD: 683680b0b7e4df5f14b9a7b8695560ea
           PYTHON_HOST: py
         depends_on:
-          - py
+          - app
           - postgre
 
     selenium:
