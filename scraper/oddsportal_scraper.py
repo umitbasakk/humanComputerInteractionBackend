@@ -251,7 +251,7 @@ def SortingByDate(ClassifySavePath):
         tweet_list.append(Tweet(row['Date'], row['Cleaned_Tweet'], row['label']))
 
     # Tarihe göre sıralama
-    tweet_list.sort(key=lambda x: pd.to_datetime(x.publishDate))
+    tweet_list.sort(key=lambda x: (pd.to_datetime(x.publishDate).month, pd.to_datetime(x.publishDate).day))
 
     # Sıralanmış listeyi yazdır
     for tweet in tweet_list:
@@ -262,7 +262,6 @@ def SortingByDate(ClassifySavePath):
     tweet_df.to_csv(ClassifySavePath, index=False, encoding='utf-8-sig')
 
     print(f"Sıralanmış veriler {ClassifySavePath} dosyasına kaydedildi.")
-    return tweet_list
 
 
 
@@ -291,9 +290,9 @@ def GetResults():
     print("Started Data",tweet_request.startDate,"End Date",tweet_request.endDate+"Tag:",tweet_request.tag)
     ProcessRequest(tweet_request ,tweetSavePath,cleanedSavePath,ClassifySavePath,driver)
     classify_csv(cleanedSavePath,ClassifySavePath,driver)
+    SortingByDate(ClassifySavePath)
     convertedData = ConvertData(ClassifySavePath)
-    result = SortingByDate(ClassifySavePath)
-    return jsonify({"tweets": result})
+    return jsonify({"tweets": convertedData})
 
 
 if __name__ == "__main__":
