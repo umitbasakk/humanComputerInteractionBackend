@@ -15,7 +15,7 @@ RUN pip3 install gdown
 RUN mkdir /scraper
 
 RUN gdown --id 1SHsAEG1Vo7XUwB5_zW9UREwuEGav91qp --output downloaded_file.zip && \
-    unzip downloaded_file.zip -d /scraper/Models/ && \
+    unzip downloaded_file.zip -d ./scraper/Models/ && \
     rm downloaded_file.zip
 
 COPY ./scraper /scraper
