@@ -43,7 +43,7 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	aiData.QuantityLimit, _ = strconv.Atoi(request.QuantityLimit)
 	aiData.RequestStatus = 1
 
-	url := fmt.Sprintf("http://%s:5000/getValue", os.Getenv("PYTHON_URL"))
+	url := fmt.Sprintf("http://%s:5000/getValue", os.Getenv("PYTHON_HOST"))
 
 	jsonVal, err := json.Marshal(request)
 	if err != nil {
