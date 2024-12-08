@@ -28,8 +28,6 @@ services:
         build:
           context: .
           dockerfile: dockerfile-python.yaml
-        volumes:
-        - ./scraper:/scraper
         command: sh -c "python3 oddsportal_scraper.py"
         ports:
           - "5000:5000"
