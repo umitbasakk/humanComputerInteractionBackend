@@ -6,7 +6,7 @@ COPY ./requirements.txt /requirements.txt
 RUN pip3 install --user -U nltk
 RUN pip3 install -U pip setuptools
 RUN pip3 install -U -r /requirements.txt
-
+RUN pip3 install gdown
 RUN mkdir /scraper
 COPY ./scraper /scraper
 RUN chmod 755 /scraper/Models/final_model_pytorch
