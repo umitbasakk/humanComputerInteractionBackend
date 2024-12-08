@@ -29,8 +29,6 @@ services:
           context: .
           dockerfile: dockerfile-python.yaml
         command: sh -c "python3 oddsportal_scraper.py"
-        ports:
-          - "5000:5000"
         restart: always
         depends_on:
         - selenium 
