@@ -168,7 +168,7 @@ def ProcessRequest(request_Tweet,tweetSavePath,cleanedSavePath,ClassifySavePath,
     all_tweets = []
     seen_tweets = set()
     scroll_count = 0
-    max_scrolls = 50  # Maksimum kaydırma sayısı
+    max_scrolls = 20  # Maksimum kaydırma sayısı
 
     while scroll_count < max_scrolls:
         tweet_elements = driver.find_elements(By.XPATH, '//article[@data-testid="tweet"]')
