@@ -3,7 +3,7 @@ FROM python:3.8.10
 ENV PYTHONBUFFERED 1
 COPY ./requirements.txt /requirements.txt
 
-RUN echo"$(date)" >/cache_buster && apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y \
     wget \
     unzip 
 
