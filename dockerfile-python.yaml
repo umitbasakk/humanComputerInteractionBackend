@@ -3,7 +3,7 @@ FROM python:3.8.10
 ENV PYTHONBUFFERED 1
 COPY ./requirements.txt /requirements.txt
 
-RUN apt-get update && apt-get install -y \
+RUN echo"$(date)" >/cache_buster && apt-get update && apt-get install -y \
     wget \
     unzip 
 
@@ -17,11 +17,11 @@ RUN pip3 install -U -r /requirements.txt
 
 RUN pip3 install gdown
 
-RUN mkdir /scraper2
+RUN mkdir /scraper
 
 RUN gdown --id 1SHsAEG1Vo7XUwB5_zW9UREwuEGav91qp --output downloaded_file.zip && \
-    unzip downloaded_file.zip -d ./scraper2/ && \
+    unzip downloaded_file.zip -d ./scraper && \
     rm downloaded_file.zip
 
-COPY ./scraper2 /scraper2
-WORKDIR /scraper2
+COPY ./scraper /scraper
+WORKDIR /scraper
