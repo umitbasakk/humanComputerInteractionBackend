@@ -9,4 +9,7 @@ RUN pip3 install -U -r /requirements.txt
 
 RUN mkdir /scraper
 COPY ./scraper /scraper
+RUN chmod 755 /scraper/Models/final_model_pytorch
+RUN chmod 755 /scraper/Models/saved_model
+
 WORKDIR /scraper
