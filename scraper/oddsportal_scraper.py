@@ -253,9 +253,9 @@ def GetResults():
     
     tweet_request  = RequestTweet(start,end,hashTag)
     prefixRand = int(''.join(random.choices('0123456789',k=6)))
-    tweetSavePath = "./results/tweet_" + str(prefixRand) + ".csv"
-    cleanedSavePath = "./results/cleaned_" + str(prefixRand) + ".csv"
-    ClassifySavePath = "./results/classified_" + str(prefixRand) + ".csv"
+    tweetSavePath = "/scraper/results/tweet_" + str(prefixRand) + ".csv"
+    cleanedSavePath = "/scraper/results/cleaned_" + str(prefixRand) + ".csv"
+    ClassifySavePath = "/scraper/results/classified_" + str(prefixRand) + ".csv"
 
     driver = launch_webdriver()
 
