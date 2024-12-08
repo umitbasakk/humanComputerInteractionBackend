@@ -24,6 +24,8 @@ import random
 from models import RequestTweet,Tweet
 import os
 
+app = Flask(__name__)
+
 # Gerekli dil işleme kütüphanelerini indir
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -232,10 +234,6 @@ def ConvertData(ClassifySavePath):
 
     return result_list
 
-
-@app.route('/getValue',methods=['GET'])
-def GetResults():
-    return jsonify({"hello world":"yest"})
 
 @app.route('/getValue',methods=['POST'])
 def GetResults():
