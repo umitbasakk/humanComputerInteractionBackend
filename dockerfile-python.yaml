@@ -8,10 +8,15 @@ RUN apt-get update && apt-get install -y \
     unzip 
 
 RUN pip install --no-cache-dir gdown
+
 RUN pip3 install --user -U nltk
+
 RUN pip3 install -U pip setuptools
+
 RUN pip3 install -U -r /requirements.txt
+
 RUN pip3 install gdown
+
 RUN mkdir /scraper
 
 RUN gdown --id 1SHsAEG1Vo7XUwB5_zW9UREwuEGav91qp --output downloaded_file.zip && \
