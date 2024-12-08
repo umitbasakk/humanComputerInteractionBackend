@@ -236,7 +236,7 @@ def classify_csv(cleanedSavePath,ClassifySavePath,driver):
     driver.quit()
 def ConvertData(ClassifySavePath):
     data = pd.read_csv(ClassifySavePath, encoding='utf-8-sig')  
-    tweet_list = [Tweet(row['Date'], row['Cleaned_Tweet'], row['label']) for _, row in data.iterrows()]
+    tweet_list = [Tweet(row['publishDate'], row['tweet'], row['classify']) for _, row in data.iterrows()]
     result_list = [tweet.to_dict() for tweet in tweet_list]
 
     return result_list
