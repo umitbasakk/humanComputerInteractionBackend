@@ -14,5 +14,4 @@ jobs:
       - name: Deploy
         run: |
           docker compose -f docker-compose.yaml -p human down --rmi all --volumes
-          DOCKER_BUILDKIT=1 docker compose build --no-cache
           docker compose -f docker-compose.yaml -p human up -d
