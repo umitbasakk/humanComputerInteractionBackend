@@ -3,7 +3,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
 
 # Model ve tokenizer yolu
-model1_path = r"./Models/final_model_pytorch"
+model1_path = r"/scraper/Models/final_model_pytorch"
 
 # Tokenizer ve modelleri yükle
 tokenizer = AutoTokenizer.from_pretrained(model1_path)  
