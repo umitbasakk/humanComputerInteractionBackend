@@ -28,8 +28,8 @@ import os
 nltk.download('punkt')
 nltk.download('stopwords')
 # Model ve tokenizer yolu
-model1_path = r"/scraper/Models/final_model_pytorch"
-model2_path = r"/scraper/Models/saved_model"
+model1_path = r"/final_model_pytorch"
+model2_path = r"/saved_model"
 
 # Hugging Face pipeline modeli (Türkçe BERT modelini kullanıyoruz)
 pipe = pipeline("sentiment-analysis", model="savasy/bert-base-turkish-sentiment-cased")
