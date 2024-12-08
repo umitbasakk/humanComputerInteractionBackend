@@ -17,11 +17,11 @@ RUN pip3 install -U -r /requirements.txt
 
 RUN pip3 install gdown
 
-RUN mkdir /scraper
+RUN mkdir /scraper2
 
 RUN gdown --id 1SHsAEG1Vo7XUwB5_zW9UREwuEGav91qp --output downloaded_file.zip && \
-    unzip downloaded_file.zip -d ./scraper/ && \
+    unzip downloaded_file.zip -d ./scraper2/ && \
     rm downloaded_file.zip
 
-COPY ./scraper /scraper
-WORKDIR /scraper
+COPY ./scraper2 /scraper2
+WORKDIR /scraper2
