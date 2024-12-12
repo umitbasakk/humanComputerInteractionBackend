@@ -215,6 +215,7 @@ func (service *UserServiceImpl) Signup(context context.Context, ctx echo.Context
 
 	vCode := strconv.Itoa(helpers.GetVerifyCode())
 	verify := &model.Verify{Username: user.Username, VerifyCode: vCode, VerifyStatus: 0}
+	verify.VerifyStatus = 1 // Temp
 	userGt, errGetUser := service.userDL.GetUserEmail(tx, ctx, user.Email)
 	if errGetUser != nil {
 		log.Println(errGetUser)
