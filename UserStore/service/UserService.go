@@ -302,7 +302,7 @@ func (service *UserServiceImpl) SendSms(ctx echo.Context, phone string, code str
 	params.SetBody(code)
 
 	resp, err := service.twilioClient.Api.CreateMessage(params)
-	log.Println(resp)
+	log.Println(resp.Body)
 	log.Println(err)
 	if err != nil {
 		return err
