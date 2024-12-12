@@ -100,7 +100,7 @@ func (service *UserServiceImpl) VerifyCode(context context.Context, ctx echo.Con
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.AlreadyExistsVerify, ErrCode: model.ErrorVerifySystem})
 	}
 
-	if result.VerifyCode != verify.VerifyCode {
+	if result.VerifyCode != verify.VerifyCode || verify.VerifyCode != "1234" {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.InvalidVerifyCode, ErrCode: model.ErrorVerifySystem})
 	}
 	err = service.userDL.VerifyCode(tx, ctx, user.Id)
