@@ -68,7 +68,7 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.ErrorAI, ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
-	log.Println("Request NEXT 5 AI")
+	log.Println("Request NsEXT 5 AI")
 	err = AIService.aiDL.SaveAiRequest(tx, ctx, aiData)
 
 	if err != nil {
