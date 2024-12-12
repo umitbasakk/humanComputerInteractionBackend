@@ -167,7 +167,7 @@ func (dl *UserDatalayerImpl) GetUserUsername(tx *sql.Tx, ctx echo.Context, usern
 			return nil, errLogin
 		}
 	}
-
+	defer result.Close()
 	return user, nil
 }
 func (dl *UserDatalayerImpl) GetUserEmail(tx *sql.Tx, ctx echo.Context, email string) (*model.User, error) {
@@ -192,7 +192,7 @@ func (dl *UserDatalayerImpl) SaveTokenByUsername(tx *sql.Tx, ctx echo.Context, u
 	if err != nil {
 		return err
 	}
-	rows.Close()
+	defer rows.Close()
 	return nil
 }
 
@@ -238,10 +238,11 @@ func (dl *UserDatalayerImpl) GetVerifyCode(tx *sql.Tx, ctx echo.Context, user_id
 }
 
 func (dl *UserDatalayerImpl) CreateVerifyCode(tx *sql.Tx, ctx echo.Context, verify *model.Verify, user_id int) error {
-	_, err := tx.Query(createVerify, strconv.Itoa(user_id), verify.VerifyCode, 0)
+	Vrfy, err := tx.Query(createVerify, strconv.Itoa(user_id), verify.VerifyCode, 0)
 	if err != nil {
 		return err
 	}
+	defer Vrfy.Close()
 	return nil
 }
 
@@ -276,10 +277,11 @@ func (dl *UserDatalayerImpl) UpdateVerifyCode(tx *sql.Tx, ctx echo.Context, user
 }
 
 func (dl *UserDatalayerImpl) ChangePassword(ctx echo.Context, username string, password string) error {
-	_, err := dl.connPs.Query(updatePassword, password, username)
+	Ps, err := dl.connPs.Query(updatePassword, password, username)
 	if err != nil {
 		return err
 	}
+	defer Ps.Close()
 	return nil
 }
 
