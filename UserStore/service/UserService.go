@@ -301,9 +301,12 @@ func (service *UserServiceImpl) SendSms(ctx echo.Context, phone string, code str
 	params.SetFrom(os.Getenv("TWILIO_PHONE"))
 	params.SetBody(code)
 
-	_, err := service.twilioClient.Api.CreateMessage(params)
+	resp, err := service.twilioClient.Api.CreateMessage(params)
+	log.Println(resp)
+	log.Println(err)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
