@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -302,8 +303,8 @@ func (service *UserServiceImpl) SendSms(ctx echo.Context, phone string, code str
 	params.SetBody(code)
 
 	resp, err := service.twilioClient.Api.CreateMessage(params)
-	log.Println(&resp.Body)
-	log.Println(err)
+	response, _ := json.Marshal(*resp)
+	log.Println(response)
 	if err != nil {
 		return err
 	}
