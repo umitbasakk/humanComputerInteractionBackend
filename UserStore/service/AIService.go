@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -34,8 +33,7 @@ func NewAIServiceImpl(dataLayer interfaces.AIDataLayer) interfaces.AIService {
 func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Context, request *AIModel.AIRequest, user *model.User) error {
 
 	aiData := &AiModel.AIData{}
-	log.Println("Request NEXT 2 AI")
-	aiData.UserId = aiData.UserId
+	aiData.UserId = strconv.Itoa(user.Id)
 	aiData.StartedDate = request.StartedDate
 	aiData.EndDate = request.EndDate
 	aiData.HashTag = request.HashTag
@@ -54,7 +52,6 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 	defer resp.Body.Close()
-	log.Println("Request NEXT 3 AI")
 	s, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
@@ -68,7 +65,6 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.ErrorAI, ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
-	log.Println("Request NsEXT 5 AI")
 	err = AIService.aiDL.SaveAiRequest(tx, ctx, aiData)
 
 	if err != nil {
