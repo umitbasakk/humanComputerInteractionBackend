@@ -238,7 +238,7 @@ func (dl *UserDatalayerImpl) GetVerifyCode(tx *sql.Tx, ctx echo.Context, user_id
 }
 
 func (dl *UserDatalayerImpl) CreateVerifyCode(tx *sql.Tx, ctx echo.Context, verify *model.Verify, user_id int) error {
-	Vrfy, err := tx.Query(createVerify, strconv.Itoa(user_id), verify.VerifyCode, 0)
+	Vrfy, err := tx.Query(createVerify, strconv.Itoa(user_id), verify.VerifyCode, verify.VerifyStatus)
 	if err != nil {
 		return err
 	}
