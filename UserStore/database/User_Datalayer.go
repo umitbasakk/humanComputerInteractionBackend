@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/gommon/log"
 	model "github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model/Auth"
 	"github.com/umitbasakk/humanComputerInteractionBackend/interfaces"
 )
@@ -286,6 +287,10 @@ func (dl *UserDatalayerImpl) ChangePassword(ctx echo.Context, username string, p
 }
 
 func (dl *UserDatalayerImpl) UpdateProfile(tx *sql.Tx, ctx echo.Context, profile *model.UpdateProfileRequest, username string) error {
+	log.Print(profile.Name)
+	log.Print(profile.Username)
+	log.Print(profile.Email)
+	log.Print(username)
 	rows, err := tx.Query(updateProfile, profile.Name, profile.Username, profile.Email, username)
 	if err != nil {
 		return err
