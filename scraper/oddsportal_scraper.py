@@ -72,7 +72,7 @@ def clean_text(tweetSavePath,cleanedSavePath):
     
     # tweetler.csv dosyasının varlığını kontrol et
     if not os.path.exists(file_path):
-        print(f"{file_path} dosyası bulunamadı!")
+        print(f"{file_path} dosyası buldnamadı!")
         return []
 
     try:
