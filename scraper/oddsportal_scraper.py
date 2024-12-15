@@ -120,34 +120,24 @@ def ProcessRequest(request_Tweet,tweetSavePath,cleanedSavePath,ClassifySavePath,
     input_element = driver.find_element(By.XPATH, input_xpath)
     input_element.send_keys("loncito123")  
 
-    time.sleep(3)
-
     button_xpath1 = '//button[.//span[text()="Next"]]'
     login_button1 = driver.find_element(By.XPATH, button_xpath1)
     driver.execute_script("arguments[0].scrollIntoView();", login_button1)
     driver.execute_script("arguments[0].click();", login_button1)
-    
-    time.sleep(3)
-   
+       
     password_input_xpath = '//input[@name="password"]'
     password_input = driver.find_element(By.XPATH, password_input_xpath)
     password_input.send_keys("1u3JWdfhNS")  
-
-    time.sleep(3)
 
     login_button_xpath = '//span[text()="Log in"]'
     login_button = driver.find_element(By.XPATH, login_button_xpath)
     driver.execute_script("arguments[0].scrollIntoView();", login_button)
     driver.execute_script("arguments[0].click();", login_button)
     
-    time.sleep(3)
-
     element = driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div[2]/header/div/div/div/div[1]/div[2]/nav/a[2]/div')
     element.click()
     
-    time.sleep(3)
-
-    search_box = WebDriverWait(driver, 60).until(
+    search_box = WebDriverWait(driver, 20).until(
         EC.presence_of_element_located((By.XPATH, '//input[@data-testid="SearchBox_Search_Input"]'))
     )
     
@@ -168,7 +158,7 @@ def ProcessRequest(request_Tweet,tweetSavePath,cleanedSavePath,ClassifySavePath,
     all_tweets = []
     seen_tweets = set()
     scroll_count = 0
-    max_scrolls = 20  # Maksimum kaydırma sayısı
+    max_scrolls = 15  # Maksimum kaydırma sayısı
 
     while scroll_count < max_scrolls:
         tweet_elements = driver.find_elements(By.XPATH, '//article[@data-testid="tweet"]')
@@ -194,8 +184,8 @@ def ProcessRequest(request_Tweet,tweetSavePath,cleanedSavePath,ClassifySavePath,
                 print(f"Tweet işlenirken hata oluştu: {e}")
 
         # Sayfayı kaydır
-        driver.execute_script("window.scrollBy(0, 800);")
-        time.sleep(3)
+        driver.execute_script("window.scrollBy(0, 1080);")
+        time.sleep(2)
         scroll_count += 1    
 
     try:
