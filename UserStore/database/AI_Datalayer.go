@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"github.com/labstack/echo/v4"
 	model "github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model/AI"
@@ -61,20 +62,49 @@ func (dl *AIDataLayerImp) SaveAiRequest(tx *sql.Tx, ctx echo.Context, aiData *mo
 }
 
 func (dl *AIDataLayerImp) GetRequestOfUser(tx *sql.Tx, ctx echo.Context, user_id string) ([]model.AIData, error) {
+	// Boş bir slice oluşturuluyor
 	requests := make([]model.AIData, 0)
-	requestTmp := &model.AIData{}
-	unUsedId := 0
+
+	// Sorguyu çalıştırıyoruz
 	rows, err := tx.Query(getRequestsOfUser, user_id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error executing query: %v", err)
 	}
+	// rows kaynağını döngü sonunda otomatik kapat
+	defer rows.Close()
+
+	// Döngüde satırları işle
 	for rows.Next() {
-		err := rows.Scan(&unUsedId, &requestTmp.UserId, &requestTmp.StartedDate, &requestTmp.EndDate, &requestTmp.HashTag, &requestTmp.Category, &requestTmp.QuantityLimit, &requestTmp.RequestStatus, &requestTmp.Created_at, &requestTmp.Updated_at)
+		// Her döngüde yeni bir requestTmp nesnesi oluştur
+		requestTmp := &model.AIData{}
+		unUsedId := 0 // Kullanılmayan sütun için geçici değişken
+
+		// Satırları tarıyoruz
+		err := rows.Scan(
+			&unUsedId,
+			&requestTmp.UserId,
+			&requestTmp.StartedDate,
+			&requestTmp.EndDate,
+			&requestTmp.HashTag,
+			&requestTmp.Category,
+			&requestTmp.QuantityLimit,
+			&requestTmp.RequestStatus,
+			&requestTmp.Created_at,
+			&requestTmp.Updated_at,
+		)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error scanning row: %v", err)
 		}
+
+		// Taradığımız veriyi slice'a ekle
 		requests = append(requests, *requestTmp)
 	}
-	defer rows.Close()
+
+	// rows.Next() döngüsünde hata varsa al
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error during rows iteration: %v", err)
+	}
+
+	// Sonuçları döndür
 	return requests, nil
 }
