@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
@@ -145,13 +146,28 @@ func (dl *UserDatalayerImpl) Login(ctx echo.Context, username string) (*model.Us
 	if err != nil {
 		return nil, err
 	}
-	if result.Next() {
-		errLogin := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Phone, &user.Password, &user.Token, &user.Created_at, &user.Updated_at)
-		if errLogin != nil {
-			return nil, errLogin
-		}
-	}
 	defer result.Close()
+
+	if !result.Next() {
+		return nil, fmt.Errorf("user not found with username: %s", username)
+	}
+
+	err = result.Scan(
+		&user.Id,
+		&user.Name,
+		&user.Username,
+		&user.Email,
+		&user.Phone,
+		&user.Password,
+		&user.Token,
+		&user.Created_at,
+		&user.Updated_at,
+	)
+
+	if err != nil {
+		return nil, fmt.Errorf("error scanning user data: %v", err)
+	}
+
 	return user, nil
 }
 
