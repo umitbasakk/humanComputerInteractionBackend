@@ -93,7 +93,7 @@ func (dl *AIDataLayerImp) GetRequestOfUser(tx *sql.Tx, ctx echo.Context, user_id
 			&requestTmp.Updated_at,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("error scanssnsing row: %v", err)
+			return nil, fmt.Errorf("error scansssnsing row: %v", err)
 		}
 
 		// Taradığımız veriyi slice'a ekle
