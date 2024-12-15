@@ -38,7 +38,7 @@ func (Controller *AIController) RequestAI(ctx echo.Context) error {
 	log.Println("Request NEXT 1 AI")
 	request := &AIModel.AIRequest{}
 	if err := ctx.Bind(request); err != nil {
-		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: "No Bind", ErrCode: model.ErrorVerifySystem})
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: "No Bind x", ErrCode: model.ErrorVerifySystem})
 	}
 	return Controller.aiService.GetResult(ctx.Request().Context(), ctx, request, user)
 }
