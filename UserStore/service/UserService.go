@@ -35,7 +35,7 @@ func (service *UserServiceImpl) Login(context context.Context, ctx echo.Context,
 
 	result, err := service.userDL.Login(ctx, user.Username)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.NotCorrectPassword, ErrCode: model.ErrorLoginSystem, Data: nil})
+		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(result.Password), []byte(user.Password))
