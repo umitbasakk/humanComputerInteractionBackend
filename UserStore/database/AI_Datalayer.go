@@ -68,7 +68,7 @@ func (dl *AIDataLayerImp) GetRequestOfUser(tx *sql.Tx, ctx echo.Context, user_id
 	// Sorguyu çalıştırıyoruz
 	rows, err := tx.Query(getRequestsOfUser, user_id)
 	if err != nil {
-		return nil, fmt.Errorf("error executing query: %v", err)
+		return nil, fmt.Errorf("error executing queryy: %v", err)
 	}
 	// rows kaynağını döngü sonunda otomatik kapat
 	defer rows.Close()
@@ -93,7 +93,7 @@ func (dl *AIDataLayerImp) GetRequestOfUser(tx *sql.Tx, ctx echo.Context, user_id
 			&requestTmp.Updated_at,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("error scanning row: %v", err)
+			return nil, fmt.Errorf("error scannsing row: %v", err)
 		}
 
 		// Taradığımız veriyi slice'a ekle
