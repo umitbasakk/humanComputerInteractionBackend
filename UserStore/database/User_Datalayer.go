@@ -262,7 +262,7 @@ func (dl *UserDatalayerImpl) IsThereEqualEmail(tx *sql.Tx, ctx echo.Context, ema
 	}
 	defer result.Close()
 	if result.Next() {
-		return errors.New("Already used email")
+		return errors.New("Already usedd email")
 	}
 	return nil
 }
