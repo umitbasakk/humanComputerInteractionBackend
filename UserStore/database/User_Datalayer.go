@@ -13,9 +13,9 @@ import (
 
 const createUser = `-- name: CreateUser :exec
 INSERT INTO
-  users (name,username,email, phone,password,token)
+  users (name,username,email,password,token)
 VALUES
-  ($1,$2,$3,$4,$5,$6)
+  ($1,$2,$3,$4,$5)
 `
 
 const GetUserByUsername = `-- name: GetUserByUsername :one
