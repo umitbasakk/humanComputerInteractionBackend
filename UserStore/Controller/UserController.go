@@ -26,8 +26,6 @@ func NewUserController(echoCtx *echo.Echo, userServiceObject interfaces.UserServ
 	}
 	echoCtx.POST("/register", userControllerObject.Signup)
 	echoCtx.POST("/login", userControllerObject.Login)
-	echoCtx.POST("/verify", userControllerObject.Verify, userControllerObject.appMiddleware.AuthenticationMiddleware)
-	echoCtx.POST("/resendCode", userControllerObject.ResendCode, userControllerObject.appMiddleware.AuthenticationMiddleware)
 	echoCtx.POST("/changePassword", userControllerObject.ChangePassword, userControllerObject.appMiddleware.AuthenticationMiddleware)
 	echoCtx.POST("/updateProfile", userControllerObject.UpdateProfile, userControllerObject.appMiddleware.AuthenticationMiddleware)
 	aasd, _ := bcrypt.GenerateFromPassword([]byte("135980Aa"), 10)
@@ -49,26 +47,6 @@ func (userController *UserController) Login(ec echo.Context) error {
 		return err
 	}
 	return userController.userService.Login(ec.Request().Context(), ec, userM)
-}
-
-func (userController *UserController) Verify(ec echo.Context) error {
-	user, ok := ec.Get("user").(*model.User)
-	if !ok {
-		return ec.JSON(http.StatusUnauthorized, &model.MessageHandler{Message: constants.UnauthorizedRequest, ErrCode: model.Authorized})
-	}
-	verifyRequest := &model.VerifyRequest{}
-	if err := ec.Bind(verifyRequest); err != nil {
-		return err
-	}
-	return userController.userService.VerifyCode(ec.Request().Context(), ec, verifyRequest, user)
-}
-
-func (userController *UserController) ResendCode(ec echo.Context) error {
-	user, ok := ec.Get("user").(*model.User)
-	if !ok {
-		return ec.JSON(http.StatusUnauthorized, &model.MessageHandler{Message: constants.UnauthorizedRequest, ErrCode: model.Authorized})
-	}
-	return userController.userService.ResendCode(ec.Request().Context(), ec, user)
 }
 
 func (userController *UserController) ChangePassword(c echo.Context) error {

@@ -43,7 +43,7 @@ func (appMiddleware *AppMiddleware) AuthenticationMiddleware(next echo.HandlerFu
 
 		if result.Next() {
 			counter++
-			errLogin := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Phone, &user.Password, &user.Token, &user.Created_at, &user.Updated_at)
+			errLogin := result.Scan(&user.Id, &user.Name, &user.Username, &user.Email, &user.Password, &user.Token, &user.Created_at, &user.Updated_at)
 			if errLogin != nil {
 				return c.JSON(http.StatusUnauthorized, &model.MessageHandler{Message: constants.UnauthorizedRequest, ErrCode: model.Authorized})
 			}

@@ -10,7 +10,6 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
-	"github.com/twilio/twilio-go"
 	controller "github.com/umitbasakk/humanComputerInteractionBackend/UserStore/Controller"
 	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/database"
 	"github.com/umitbasakk/humanComputerInteractionBackend/UserStore/middlewares"
@@ -50,13 +49,8 @@ func main() {
 		DB:     db,
 	}
 
-	client := twilio.NewRestClientWithParams(twilio.ClientParams{
-		Username: os.Getenv("TWILIO_USERNAME"), //
-		Password: os.Getenv("TWILIO_PASSWORD"), //
-	})
-
 	userDataLayer := database.NewUserDatalayerImpl(db)
-	userService := service.NewUserServiceImpl(userDataLayer, client)
+	userService := service.NewUserServiceImpl(userDataLayer)
 	controller.NewUserController(echoContext, userService, appMiddleware)
 
 	aiDataLayer := database.NewAIDataLayerImpl(db)

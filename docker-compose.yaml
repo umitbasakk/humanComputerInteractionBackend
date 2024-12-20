@@ -11,9 +11,6 @@ services:
           DB_PASSWORD: xaumGvWmWNJtMhAOtmfR9ZtqdBj
           DB_HOST: postgre:5432
           DB_NAME: human_db
-          TWILIO_USERNAME: ACbb2f0f0ba5205919227915675e8e5bb1
-          TWILIO_PASSWORD: 79379bed302ff93b993b3934b0b19f6f
-          TWILIO_PHONE: +12765665948
           PYTHON_HOST: app
         depends_on:
           - app
