@@ -32,7 +32,7 @@ func NewAIServiceImpl(dataLayer interfaces.AIDataLayer) interfaces.AIService {
 	}
 }
 
-var timeout = 600 * time.Second
+var timeout = 300 * time.Second
 
 func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Context, request *AIModel.AIRequest, user *model.User) error {
 
@@ -54,8 +54,14 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	}
 
 	client := http.Client{
+		Transport: &http.Transport{
+			MaxIdleConns:      10,
+			IdleConnTimeout:   300 * time.Second,
+			DisableKeepAlives: false,
+		},
 		Timeout: timeout,
 	}
+
 	log.Println("Posting Request")
 
 	resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonVal))
