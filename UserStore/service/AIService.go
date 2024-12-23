@@ -7,9 +7,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	AIModel "github.com/umitbasakk/humanComputerInteractionBackend/UserStore/model/AI"
@@ -31,6 +33,12 @@ func NewAIServiceImpl(dataLayer interfaces.AIDataLayer) interfaces.AIService {
 	}
 }
 
+var timeout = time.Duration(200 * time.Second)
+
+func dialTimeout(network, addr string) (net.Conn, error) {
+	return net.DialTimeout(network, addr, timeout)
+}
+
 func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Context, request *AIModel.AIRequest, user *model.User) error {
 
 	aiData := &AiModel.AIData{}
@@ -48,7 +56,13 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	if err != nil {
 		fmt.Println("Hata", err)
 	}
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonVal))
+	transport := http.Transport{
+		Dial: dialTimeout,
+	}
+	client := http.Client{
+		Transport: &transport,
+	}
+	resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonVal))
 	if err != nil {
 		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
