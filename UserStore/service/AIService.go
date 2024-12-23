@@ -36,6 +36,7 @@ var timeout = 600 * time.Second
 
 func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Context, request *AIModel.AIRequest, user *model.User) error {
 
+	log.Println("Coming Request")
 	aiData := &AiModel.AIData{}
 	aiData.UserId = strconv.Itoa(user.Id)
 	aiData.StartedDate = request.StartedDate
@@ -55,6 +56,8 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	client := http.Client{
 		Timeout: timeout,
 	}
+	log.Println("Posting Request")
+
 	resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonVal))
 	if err != nil {
 		log.Println(err.Error())
@@ -68,6 +71,7 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	}
 	response := &AIModel.AIResponse{}
 	err = json.Unmarshal(s, response)
+	log.Println(string(s))
 	if err != nil {
 		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
@@ -92,7 +96,6 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 		log.Println(err.Error())
 		return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorLoginSystem})
 	}
-	log.Println(string(s))
 	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.Successful, ErrCode: model.ErrorLoginSystem, Data: response})
 }
 
