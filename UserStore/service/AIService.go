@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -49,35 +50,42 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 	}
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonVal))
 	if err != nil {
+		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 	defer resp.Body.Close()
 	s, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 	response := &AIModel.AIResponse{}
 	err = json.Unmarshal(s, response)
 	if err != nil {
+		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 	tx, err := AIService.aiDL.GetTransaction(context)
 	if err != nil {
+		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.ErrorAI, ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 	err = AIService.aiDL.SaveAiRequest(tx, ctx, aiData)
 
 	if err != nil {
+		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.ErrorAI, ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 	err = AIService.aiDL.CommitTransaction(tx)
 	if err != nil {
+		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: constants.ErrorAI, ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
 	if aiData.RequestStatus == 0 {
+		log.Println(err.Error())
 		return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.GlobalError, ErrCode: model.ErrorLoginSystem})
 	}
-
+	log.Println(string(s))
 	return ctx.JSON(http.StatusOK, &model.MessageHandler{Message: constants.Successful, ErrCode: model.ErrorLoginSystem, Data: response})
 }
 

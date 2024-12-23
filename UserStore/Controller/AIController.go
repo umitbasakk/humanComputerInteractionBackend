@@ -1,7 +1,6 @@
 package Controller
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -31,11 +30,9 @@ func NewAIController(echo *echo.Echo, service interfaces.AIService, middleware *
 
 func (Controller *AIController) RequestAI(ctx echo.Context) error {
 	user, ok := ctx.Get("user").(*UserModel.User)
-	log.Println("Request AI")
 	if !ok {
 		return ctx.JSON(http.StatusUnauthorized, &model.MessageHandler{Message: constants.UnauthorizedRequest, ErrCode: model.Authorized})
 	}
-	log.Println("Request NEXT 1 AI")
 	request := &AIModel.AIRequest{}
 	if err := ctx.Bind(request); err != nil {
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: "No Bind x", ErrCode: model.ErrorVerifySystem})
