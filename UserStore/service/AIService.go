@@ -69,12 +69,14 @@ func (AIService *AIServiceImpl) GetResult(context context.Context, ctx echo.Cont
 		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
+	log.Println("Before Defer")
 	defer resp.Body.Close()
 	s, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println(err.Error())
 		return ctx.JSON(http.StatusBadRequest, &model.MessageHandler{Message: err.Error(), ErrCode: model.ErrorLoginSystem, Data: nil})
 	}
+	log.Println("After Defer")
 	log.Println(string(s))
 	response := &AIModel.AIResponse{}
 	err = json.Unmarshal(s, response)
