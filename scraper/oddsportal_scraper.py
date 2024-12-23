@@ -23,8 +23,10 @@ import torch
 import random
 from models import RequestTweet,Tweet
 import os
+from werkzeug.serving import WSGIRequestHandler
 
 app = Flask(__name__)
+WSGIRequestHandler.protocol_version = "HTTP/1.1"
 
 # Gerekli dil işleme kütüphanelerini indir
 nltk.download('punkt')

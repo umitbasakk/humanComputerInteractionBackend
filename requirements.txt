@@ -12,3 +12,4 @@ zemberek-python
 tqdm
 torch==1.12.1
 flask
+werkzeug
